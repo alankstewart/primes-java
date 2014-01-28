@@ -33,35 +33,36 @@ public class Primes {
             }
         });
 
+        out.format("Enter a number between 2 and %d: ", upperBound);
+
+        final boolean[] composite;
         try {
-            out.format("Enter a number between 2 and %d: ", upperBound);
-
-            final boolean[] composite = future.get();
-
-            int number = parseInt(console.readLine());
-            if (number < 2 || number > upperBound) {
-                throw new IllegalArgumentException(String.format("Number must be between 2 and %d", upperBound));
-            }
-
-            if (composite[number]) {
-                out.format("%d is not prime\n", number);
-            } else {
-                out.format("%d is prime\n", number);
-            }
-
-            if (DEBUG) {
-                out.format("\n");
-                for (int i = 2; i <= upperBound; i++) {
-                    if (!composite[i]) {
-                        out.format("%d ", i);
-                    }
-                }
-                out.format("\n");
-            }
-        } catch (InterruptedException | ExecutionException e) {
+            composite = future.get();
+        } catch (final InterruptedException | ExecutionException e) {
             throw new IllegalStateException(e);
         } finally {
             executorService.shutdown();
+        }
+
+        int number = parseInt(console.readLine());
+        if (number < 2 || number > upperBound) {
+            throw new IllegalArgumentException(String.format("Number must be between 2 and %d", upperBound));
+        }
+
+        if (composite[number]) {
+            out.format("%d is not prime\n", number);
+        } else {
+            out.format("%d is prime\n", number);
+        }
+
+        if (DEBUG) {
+            out.format("\n");
+            for (int i = 2; i <= upperBound; i++) {
+                if (!composite[i]) {
+                    out.format("%d ", i);
+                }
+            }
+            out.format("\n");
         }
     }
 

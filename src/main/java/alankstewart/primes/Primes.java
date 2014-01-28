@@ -49,11 +49,7 @@ public class Primes {
             throw new IllegalArgumentException(String.format("Number must be between 2 and %d", upperBound));
         }
 
-        if (composite[number]) {
-            out.format("%d is not prime\n", number);
-        } else {
-            out.format("%d is prime\n", number);
-        }
+        out.format(composite[number] ? "%d is not prime\n" : "%d is prime\n", number);
 
         if (DEBUG) {
             out.format("\n");

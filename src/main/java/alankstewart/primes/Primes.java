@@ -35,7 +35,9 @@ public class Primes {
 
         try {
             out.format("Enter a number between 2 and %d: ", upperBound);
+
             final boolean[] composite = future.get();
+
             int number = parseInt(console.readLine());
             if (number < 2 || number > upperBound) {
                 throw new IllegalArgumentException(String.format("Number must be between 2 and %d", upperBound));

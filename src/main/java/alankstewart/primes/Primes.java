@@ -8,8 +8,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static java.lang.Integer.parseInt;
-import static java.lang.System.err;
-import static java.lang.System.exit;
 import static java.lang.System.out;
 
 public class Primes {
@@ -17,19 +15,21 @@ public class Primes {
     private static final boolean DEBUG = Boolean.getBoolean("debug");
 
     public static void main(final String[] args) {
+        final Primes primes = new Primes();
+        primes.calculate(args != null && args.length > 0 ? parseInt(args[0]) : 100);
+    }
+
+    public void calculate(final int upperBound) {
         final Console console = System.console();
         if (console == null) {
-            err.format("No console\n");
-            exit(1);
+            throw new IllegalStateException("No console");
         }
 
-        final int upperBound = args != null && args.length > 0 ? parseInt(args[0]) : 100;
-        final Primes primes = new Primes();
         final ExecutorService executorService = Executors.newSingleThreadExecutor();
         final Future<boolean[]> future = executorService.submit(new Callable<boolean[]>() {
             @Override
             public boolean[] call() throws Exception {
-                return primes.eratosthenesSieve(upperBound);
+                return eratosthenesSieve(upperBound);
             }
         });
 
@@ -38,8 +38,7 @@ public class Primes {
             final boolean[] composite = future.get();
             int number = parseInt(console.readLine());
             if (number < 2 || number > upperBound) {
-                err.format("Number must be between 2 and %d\n", upperBound);
-                exit(1);
+                throw new IllegalArgumentException(String.format("Number must be between 2 and %d", upperBound));
             }
 
             if (composite[number]) {

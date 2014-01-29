@@ -36,9 +36,9 @@ public class Primes {
 
         out.format("Enter a number between 2 and %d: ", limit);
 
-        final BitSet primes;
+        final BitSet prime;
         try {
-            primes = future.get();
+            prime = future.get();
         } catch (final InterruptedException | ExecutionException e) {
             throw new IllegalStateException(e);
         } finally {
@@ -50,12 +50,12 @@ public class Primes {
             throw new IllegalArgumentException(String.format("Number must be between 2 and %d", limit));
         }
 
-        out.format(primes.get(number) ? "%d is prime\n" : "%d is not prime\n", number);
+        out.format(prime.get(number) ? "%d is prime\n" : "%d is not prime\n", number);
 
         if (DEBUG) {
             out.format("\n");
             for (int i = 2; i <= limit; i++) {
-                if (primes.get(i)) {
+                if (prime.get(i)) {
                     out.format("%d ", i);
                 }
             }
@@ -64,16 +64,16 @@ public class Primes {
     }
 
     public BitSet eratosthenesSieve(final int limit) {
-        final BitSet primes = new BitSet(limit + 1);
-        primes.set(2, limit + 1);
+        final BitSet prime = new BitSet(limit + 1);
+        prime.set(2, limit + 1);
         final int limitSqrt = (int) Math.floor(Math.sqrt(limit));
         for (int i = 2; i <= limitSqrt; i++) {
-            if (primes.get(i)) {
+            if (prime.get(i)) {
                 for (int j = i * i; j <= limit; j += i) {
-                    primes.clear(j);
+                    prime.clear(j);
                 }
             }
         }
-        return primes;
+        return prime;
     }
 }

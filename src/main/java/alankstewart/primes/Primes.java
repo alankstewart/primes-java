@@ -1,6 +1,7 @@
 package alankstewart.primes;
 
 import java.io.Console;
+import java.util.BitSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -12,32 +13,32 @@ import static java.lang.System.out;
 
 public class Primes {
 
-    private static final boolean DEBUG = Boolean.getBoolean("debug");
+    private static final boolean DEBUG = Boolean.getBoolean("DEBUG");
 
     public static void main(final String[] args) {
         final Primes primes = new Primes();
         primes.calculate(args != null && args.length > 0 ? parseInt(args[0]) : 100);
     }
 
-    public void calculate(final int upperBound) {
+    public void calculate(final int limit) {
         final Console console = System.console();
         if (console == null) {
             throw new IllegalStateException("No console");
         }
 
         final ExecutorService executorService = Executors.newSingleThreadExecutor();
-        final Future<boolean[]> future = executorService.submit(new Callable<boolean[]>() {
+        final Future<BitSet> future = executorService.submit(new Callable<BitSet>() {
             @Override
-            public boolean[] call() throws Exception {
-                return eratosthenesSieve(upperBound);
+            public BitSet call() throws Exception {
+                return eratosthenesSieve(limit);
             }
         });
 
-        out.format("Enter a number between 2 and %d: ", upperBound);
+        out.format("Enter a number between 2 and %d: ", limit);
 
-        final boolean[] composite;
+        final BitSet primes;
         try {
-            composite = future.get();
+            primes = future.get();
         } catch (final InterruptedException | ExecutionException e) {
             throw new IllegalStateException(e);
         } finally {
@@ -45,16 +46,16 @@ public class Primes {
         }
 
         int number = parseInt(console.readLine());
-        if (number < 2 || number > upperBound) {
-            throw new IllegalArgumentException(String.format("Number must be between 2 and %d", upperBound));
+        if (number < 2 || number > limit) {
+            throw new IllegalArgumentException(String.format("Number must be between 2 and %d", limit));
         }
 
-        out.format(composite[number] ? "%d is not prime\n" : "%d is prime\n", number);
+        out.format(primes.get(number) ? "%d is prime\n" : "%d is not prime\n", number);
 
         if (DEBUG) {
             out.format("\n");
-            for (int i = 2; i <= upperBound; i++) {
-                if (!composite[i]) {
+            for (int i = 2; i <= limit; i++) {
+                if (primes.get(i)) {
                     out.format("%d ", i);
                 }
             }
@@ -62,18 +63,17 @@ public class Primes {
         }
     }
 
-    public boolean[] eratosthenesSieve(final int upperBound) {
-        final boolean[] composite = new boolean[upperBound + 1];
-
-        final int upperBoundSqrt = (int) Math.sqrt(upperBound);
-        for (int i = 2; i <= upperBoundSqrt; i++) {
-            if (!composite[i]) {
-                for (int j = i * i; j <= upperBound; j += i) {
-                    composite[j] = true;
+    public BitSet eratosthenesSieve(final int limit) {
+        final BitSet primes = new BitSet(limit + 1);
+        primes.set(2, limit + 1);
+        final int limitSqrt = (int) Math.floor(Math.sqrt(limit));
+        for (int i = 2; i <= limitSqrt; i++) {
+            if (primes.get(i)) {
+                for (int j = i * i; j <= limit; j += i) {
+                    primes.clear(j);
                 }
             }
         }
-
-        return composite;
+        return primes;
     }
 }
